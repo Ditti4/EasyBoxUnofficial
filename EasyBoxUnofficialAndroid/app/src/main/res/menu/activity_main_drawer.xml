@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/ic_menu_home"
+            android:title="@string/menu_home" />
+    </group>
+
+    <item android:title="Application">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_about"
+                android:title="@string/menu_about_this_app" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_settings"
+                android:title="@string/menu_settings" />
+        </menu>
+    </item>
+
+</menu>
