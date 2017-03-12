@@ -4,26 +4,19 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 import de.riditt.easyboxunofficial.Utilities;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
 
 public class EasyBoxApi {
     public interface OnApiResultListener {
@@ -33,43 +26,46 @@ public class EasyBoxApi {
     private String serverUrl;
     private String authKey;
     private String dmCookie;
-    private final OkHttpClient client;
+    @Inject
+    OkHttpClient client;
 
     private final Handler keepAliveHandler = new Handler();
     private boolean stopKeepAliveTask = false;
 
-    public EasyBoxApi() {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        client = new OkHttpClient.Builder()
-                .cookieJar(new CookieJar() {
-                    private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
+    private boolean connectionEstablished;
+    private boolean initialized;
 
-                    @Override
-                    public void saveFromResponse(HttpUrl fullUrl, List<Cookie> cookies) {
-                        cookieStore.put(fullUrl.host(), cookies);
-                    }
-
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl fullUrl) {
-                        List<Cookie> cookies = cookieStore.get(fullUrl.host());
-                        return cookies != null ? cookies : new ArrayList<Cookie>();
-                    }
-                })
-                .addInterceptor(logging)
-                .build();
+    public boolean isConnectionEstablished() {
+        return connectionEstablished;
     }
 
-    public void EstablishConnection(String serverUrl, final OnApiResultListener listener) {
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+
+    public void Initialize(String serverUrl, final OnApiResultListener listener) {
         if (serverUrl.isEmpty()) {
-            return;
-            // TODO: fix the DetermineServerUrl function
-            //this.serverUrl = DetermineServerUrl();
+            DetermineServerUrl(new OnApiResultListener() {
+                @Override
+                public void onApiResult(boolean success, Object... results) {
+                    if (success) {
+                        EasyBoxApi.this.serverUrl = (String) results[0];
+                        initialized = true;
+                    }
+                    listener.onApiResult(success);
+                }
+            });
         } else {
             this.serverUrl = serverUrl;
+            initialized = true;
+            listener.onApiResult(true);
         }
+    }
 
-        GetAuthKey(new OnApiResultListener() {
+    public void EstablishConnection(final OnApiResultListener listener) {
+        FetchAuthKey(new OnApiResultListener() {
             @Override
             public void onApiResult(boolean success, Object... results) {
                 if (!success) {
@@ -77,7 +73,7 @@ public class EasyBoxApi {
                     return;
                 }
                 // after getting the auth_key we need the dm_cookie of this session
-                GetDmCookie("login.html", new OnApiResultListener() {
+                FetchDmCookie("login.html", new OnApiResultListener() {
                     @Override
                     public void onApiResult(boolean success, Object... results) {
                         if (!success) {
@@ -94,6 +90,7 @@ public class EasyBoxApi {
                                     public void onApiResult(boolean success, Object... results) {
                                         Log.d("EasyBoxApi", "KeepAlive: response (" + success + ")");
                                         // wait until after we got the KeepAlive response to send the message about the successful login
+                                        connectionEstablished = true;
                                         listener.onApiResult(true);
                                     }
                                 });
@@ -123,27 +120,52 @@ public class EasyBoxApi {
         });
     }
 
-    private String DetermineServerUrl() {
-        try {
-            // TODO: this does not work since it's throwing an exception about network operations in the main thread
-            // (I always thought that's only for actual HTTP connections ._.)
-            String ipAddress = Inet4Address.getByName("easy.box").getHostAddress();
-            if (ipAddress.isEmpty()) {
-                return "192.168.2.1";
-            } else {
-                return ipAddress;
+    public void CheckForValidEasyBoxUrl(String serverUrl, final OnApiResultListener listener) {
+        Request request = new Request.Builder()
+                .url("http://" + serverUrl + "/main.cgi?js=rg_config.js")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                listener.onApiResult(false);
             }
-        } catch (UnknownHostException e) {
-            // time for some well-reasoned guessing!
-            // okay, let's just use the default value
-            return "192.168.2.1";
-        }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                listener.onApiResult(response.isSuccessful());
+            }
+        });
+    }
+
+    /*
+    Tries different possible server URL values and checks if they belong to an EasyBox.
+    Will call the listener with the boolean result and, if true, with the determined server URL.
+     */
+    private void DetermineServerUrl(final OnApiResultListener listener) {
+        // try two different default values
+        CheckForValidEasyBoxUrl("easy.box", new OnApiResultListener() {
+            @Override
+            public void onApiResult(boolean success, Object... results) {
+                if (success) {
+                    listener.onApiResult(true, "easy.box");
+                } else {
+                    CheckForValidEasyBoxUrl("192.168.2.1", new OnApiResultListener() {
+                        @Override
+                        public void onApiResult(boolean success, Object... results) {
+                            listener.onApiResult(success, success ? "192.168.2.1" : "");
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /*
     Both, gets and sets the authKey variable.
      */
-    private void GetAuthKey(final OnApiResultListener listener) {
+    private void FetchAuthKey(final OnApiResultListener listener) {
         Request request = new Request.Builder()
                 .url("http://" + serverUrl + "/main.cgi?js=rg_config.js")
                 .build();
@@ -165,7 +187,7 @@ public class EasyBoxApi {
                 if (!match.find()) {
                     listener.onApiResult(false);
                 }
-                authKey =  match.group(1);
+                authKey = match.group(1);
                 listener.onApiResult(true);
             }
         });
@@ -174,13 +196,13 @@ public class EasyBoxApi {
     /*
     Both, gets and sets the dmCookie variable.
      */
-    private void GetDmCookie(String pageName, final OnApiResultListener listener) {
-        Log.d("EasyBoxApi", "GetDmCookie: enter");
+    private void FetchDmCookie(String pageName, final OnApiResultListener listener) {
+        Log.d("EasyBoxApi", "FetchDmCookie: enter");
         Request request = new Request.Builder()
                 .url("http://" + serverUrl + "/main.cgi?page=" + pageName)
                 .build();
 
-        Log.d("EasyBoxApi", "GetDmCookie: enter");
+        Log.d("EasyBoxApi", "FetchDmCookie: enter");
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -198,11 +220,11 @@ public class EasyBoxApi {
                 if (!match.find()) {
                     listener.onApiResult(false);
                 }
-                dmCookie =  match.group(1);
+                dmCookie = match.group(1);
                 listener.onApiResult(true);
             }
         });
-        Log.d("EasyBoxApi", "GetDmCookie: enter");
+        Log.d("EasyBoxApi", "FetchDmCookie: enter");
     }
 
     private Request CreateSoapRequest(String soapEnvelope, String soapAction) {
@@ -273,7 +295,7 @@ public class EasyBoxApi {
             public void onResponse(Call call, final Response response) throws IOException {
                 // after logging in, the app gives us a new dm_cookie value which we need to get
                 // from the app.html page here
-                GetDmCookie("app.html", new OnApiResultListener() {
+                FetchDmCookie("app.html", new OnApiResultListener() {
                     @Override
                     public void onApiResult(boolean success, Object... results) {
                         listener.onApiResult(response.isSuccessful());

@@ -6,4 +6,13 @@
     <string name="action_settings">Einstellungen</string>
     <string name="menu_about_this_app">Über diese App</string>
     <string name="menu_home">Startseite</string>
+    <string name="menu_title_application">Anwendung</string>
+    <string name="error_field_required">Erforderliches Feld</string>
+    <string name="error_incorrect_password">Dieses Passwort ist falsch</string>
+    <string name="prompt_server_url">EasyBox-URL</string>
+    <string name="title_activity_login">Anmelden</string>
+    <string name="action_sign_in">Einloggen</string>
+    <string name="action_sign_in_short">Einloggen</string>
+    <string name="prompt_password">Passwort</string>
+    <string name="error_invalid_server_url">Diese URL ist keine gültige EasyBox-URL</string>
 </resources>
