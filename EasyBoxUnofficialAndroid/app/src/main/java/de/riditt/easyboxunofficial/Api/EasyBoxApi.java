@@ -54,7 +54,8 @@ public class EasyBoxApi {
     }
 
     public void stopKeepAlive() {
-
+        // need to think of a better way to do this
+        stopKeepAliveHandler = true;
     }
 
     public void initialize(String serverUrl, final OnApiResultListener listener) {
@@ -106,7 +107,7 @@ public class EasyBoxApi {
                         keepAliveHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if(!stopKeepAliveHandler) {
+                                if (!stopKeepAliveHandler) {
                                     Log.d("EasyBoxApi", "keepAlive: don't stop");
                                     keepAlive(new OnApiResultListener() {
                                         @Override
@@ -247,7 +248,7 @@ public class EasyBoxApi {
         String soapEnvelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "    <soapenv:Header>\n" +
                 "        <DMCookie>" + dmCookie + "</DMCookie>\n" +
-                "        <SessionNotRefresh>1</SessionNotRefresh>\n" +
+                "        <SessionNotRefresh>0</SessionNotRefresh>\n" +
                 "    </soapenv:Header>\n" +
                 "    <soapenv:Body>\n" +
                 "        <cwmp:SessionKeepAlive xmlns=\"\">\n" +
