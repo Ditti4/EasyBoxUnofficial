@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-
 import de.riditt.easyboxunofficial.Utilities;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -26,28 +24,42 @@ public class EasyBoxApi {
     private String serverUrl;
     private String authKey;
     private String dmCookie;
-    @Inject
-    OkHttpClient client;
+    private OkHttpClient client;
 
     private final Handler keepAliveHandler = new Handler();
-    private boolean stopKeepAliveTask = false;
+    private boolean stopKeepAliveHandler;
 
     private boolean connectionEstablished;
     private boolean initialized;
+    private boolean loggedIn;
+
+    public EasyBoxApi(OkHttpClient client) {
+        this.client = client;
+    }
 
     public boolean isConnectionEstablished() {
         return connectionEstablished;
     }
 
-
     public boolean isInitialized() {
         return initialized;
     }
 
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
 
-    public void Initialize(String serverUrl, final OnApiResultListener listener) {
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public void stopKeepAlive() {
+
+    }
+
+    public void initialize(String serverUrl, final OnApiResultListener listener) {
         if (serverUrl.isEmpty()) {
-            DetermineServerUrl(new OnApiResultListener() {
+            determineServerUrl(new OnApiResultListener() {
                 @Override
                 public void onApiResult(boolean success, Object... results) {
                     if (success) {
@@ -64,8 +76,8 @@ public class EasyBoxApi {
         }
     }
 
-    public void EstablishConnection(final OnApiResultListener listener) {
-        FetchAuthKey(new OnApiResultListener() {
+    public void establishConnection(final OnApiResultListener listener) {
+        fetchAuthKey(new OnApiResultListener() {
             @Override
             public void onApiResult(boolean success, Object... results) {
                 if (!success) {
@@ -73,7 +85,7 @@ public class EasyBoxApi {
                     return;
                 }
                 // after getting the auth_key we need the dm_cookie of this session
-                FetchDmCookie("login.html", new OnApiResultListener() {
+                fetchDmCookie("login.html", new OnApiResultListener() {
                     @Override
                     public void onApiResult(boolean success, Object... results) {
                         if (!success) {
@@ -81,46 +93,40 @@ public class EasyBoxApi {
                             return;
                         }
                         // now that we have that, we set up the keep-alive timer
+                        keepAlive(new OnApiResultListener() {
+                            @Override
+                            public void onApiResult(boolean success, Object... results) {
+                                Log.d("EasyBoxApi", "keepAlive: response (" + success + ")");
+                                // wait until after we got the keepAlive response to send the message about the successful login
+                                connectionEstablished = success;
+                                listener.onApiResult(success);
+                            }
+                        });
+                        // do everything we just did but skip the listener.onApiResult() call
                         keepAliveHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                Log.d("EasyBoxApi", "KeepAlive: don't stop");
-                                KeepAlive(new OnApiResultListener() {
-                                    @Override
-                                    public void onApiResult(boolean success, Object... results) {
-                                        Log.d("EasyBoxApi", "KeepAlive: response (" + success + ")");
-                                        // wait until after we got the KeepAlive response to send the message about the successful login
-                                        connectionEstablished = true;
-                                        listener.onApiResult(true);
-                                    }
-                                });
-                                // do everything we just did but skip the listener.onApiResult() call
-                                keepAliveHandler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!stopKeepAliveTask) {
-                                            Log.d("EasyBoxApi", "KeepAlive: don't stop");
-                                            KeepAlive(new OnApiResultListener() {
-                                                @Override
-                                                public void onApiResult(boolean success, Object... results) {
-                                                    Log.d("EasyBoxApi", "KeepAlive: response (" + success + ")");
-                                                }
-                                            });
-                                            keepAliveHandler.postDelayed(this, 10000);
-                                        } else {
-                                            Log.d("EasyBoxApi", "KeepAlive: stop");
+                                if(!stopKeepAliveHandler) {
+                                    Log.d("EasyBoxApi", "keepAlive: don't stop");
+                                    keepAlive(new OnApiResultListener() {
+                                        @Override
+                                        public void onApiResult(boolean success, Object... results) {
+                                            Log.d("EasyBoxApi", "keepAlive: response (" + success + ")");
                                         }
-                                    }
-                                }, 10000);
+                                    });
+                                    keepAliveHandler.postDelayed(this, 10000);
+                                } else {
+                                    stopKeepAliveHandler = false;
+                                }
                             }
-                        }, 0);
+                        }, 10000);
                     }
                 });
             }
         });
     }
 
-    public void CheckForValidEasyBoxUrl(String serverUrl, final OnApiResultListener listener) {
+    public void checkForValidEasyBoxUrl(String serverUrl, final OnApiResultListener listener) {
         Request request = new Request.Builder()
                 .url("http://" + serverUrl + "/main.cgi?js=rg_config.js")
                 .build();
@@ -143,15 +149,15 @@ public class EasyBoxApi {
     Tries different possible server URL values and checks if they belong to an EasyBox.
     Will call the listener with the boolean result and, if true, with the determined server URL.
      */
-    private void DetermineServerUrl(final OnApiResultListener listener) {
+    private void determineServerUrl(final OnApiResultListener listener) {
         // try two different default values
-        CheckForValidEasyBoxUrl("easy.box", new OnApiResultListener() {
+        checkForValidEasyBoxUrl("easy.box", new OnApiResultListener() {
             @Override
             public void onApiResult(boolean success, Object... results) {
                 if (success) {
                     listener.onApiResult(true, "easy.box");
                 } else {
-                    CheckForValidEasyBoxUrl("192.168.2.1", new OnApiResultListener() {
+                    checkForValidEasyBoxUrl("192.168.2.1", new OnApiResultListener() {
                         @Override
                         public void onApiResult(boolean success, Object... results) {
                             listener.onApiResult(success, success ? "192.168.2.1" : "");
@@ -165,7 +171,7 @@ public class EasyBoxApi {
     /*
     Both, gets and sets the authKey variable.
      */
-    private void FetchAuthKey(final OnApiResultListener listener) {
+    private void fetchAuthKey(final OnApiResultListener listener) {
         Request request = new Request.Builder()
                 .url("http://" + serverUrl + "/main.cgi?js=rg_config.js")
                 .build();
@@ -196,13 +202,13 @@ public class EasyBoxApi {
     /*
     Both, gets and sets the dmCookie variable.
      */
-    private void FetchDmCookie(String pageName, final OnApiResultListener listener) {
-        Log.d("EasyBoxApi", "FetchDmCookie: enter");
+    private void fetchDmCookie(String pageName, final OnApiResultListener listener) {
+        Log.d("EasyBoxApi", "fetchDmCookie: enter");
         Request request = new Request.Builder()
                 .url("http://" + serverUrl + "/main.cgi?page=" + pageName)
                 .build();
 
-        Log.d("EasyBoxApi", "FetchDmCookie: enter");
+        Log.d("EasyBoxApi", "fetchDmCookie: enter");
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -224,10 +230,10 @@ public class EasyBoxApi {
                 listener.onApiResult(true);
             }
         });
-        Log.d("EasyBoxApi", "FetchDmCookie: enter");
+        Log.d("EasyBoxApi", "fetchDmCookie: enter");
     }
 
-    private Request CreateSoapRequest(String soapEnvelope, String soapAction) {
+    private Request createSoapRequest(String soapEnvelope, String soapAction) {
         return new Request.Builder()
                 .url("http://" + serverUrl + "/data_model.cgi")
                 .addHeader("SOAPServer", "")
@@ -236,8 +242,8 @@ public class EasyBoxApi {
                 .build();
     }
 
-    private void KeepAlive(final OnApiResultListener listener) {
-        Log.d("EasyBoxApi", "KeepAlive: enter");
+    private void keepAlive(final OnApiResultListener listener) {
+        Log.d("EasyBoxApi", "keepAlive: enter");
         String soapEnvelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "    <soapenv:Header>\n" +
                 "        <DMCookie>" + dmCookie + "</DMCookie>\n" +
@@ -250,8 +256,8 @@ public class EasyBoxApi {
                 "    </soapenv:Body>\n" +
                 "</soapenv:Envelope>";
 
-        Log.d("EasyBoxApi", "KeepAlive: send");
-        client.newCall(CreateSoapRequest(soapEnvelope, "cwmp:SessionKeepAlive")).enqueue(new Callback() {
+        Log.d("EasyBoxApi", "keepAlive: send");
+        client.newCall(createSoapRequest(soapEnvelope, "cwmp:SessionKeepAlive")).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -263,11 +269,14 @@ public class EasyBoxApi {
                 listener.onApiResult(response.isSuccessful());
             }
         });
-        Log.d("EasyBoxApi", "KeepAlive: exit");
+        Log.d("EasyBoxApi", "keepAlive: exit");
     }
 
-    public void Login(String password, final OnApiResultListener listener) {
-        Log.d("EasyBoxApi", "Login: enter");
+    public void login(String password, final OnApiResultListener listener) {
+        Log.d("EasyBoxApi", "login: enter");
+        Log.d("EasyBoxApi", "login: password = " + password);
+        Log.d("EasyBoxApi", "login: authKey = " + authKey);
+
         String soapEnvelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "    <soapenv:Header>\n" +
                 "        <DMCookie>" + dmCookie + "</DMCookie>\n" +
@@ -276,15 +285,15 @@ public class EasyBoxApi {
                 "        <cwmp:Login xmlns = \"\">\n" +
                 "            <ParameterList>\n" +
                 "                <Username>vodafone</Username>\n" +
-                "                <Password>" + Utilities.md5(password + authKey) + "</Password>\n" +
+                "                <Password>" + Utilities.md5(password + authKey).toUpperCase() + "</Password>\n" +
                 "                <AllowRelogin>0</AllowRelogin>\n" +
                 "            </ParameterList>\n" +
                 "        </cwmp:Login>\n" +
                 "    </soapenv:Body>\n" +
                 "</soapenv:Envelope>";
 
-        Log.d("EasyBoxApi", "Login: send");
-        client.newCall(CreateSoapRequest(soapEnvelope, "cwmp:Login")).enqueue(new Callback() {
+        Log.d("EasyBoxApi", "login: send");
+        client.newCall(createSoapRequest(soapEnvelope, "cwmp:Login")).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -295,14 +304,15 @@ public class EasyBoxApi {
             public void onResponse(Call call, final Response response) throws IOException {
                 // after logging in, the app gives us a new dm_cookie value which we need to get
                 // from the app.html page here
-                FetchDmCookie("app.html", new OnApiResultListener() {
+                fetchDmCookie("app.html", new OnApiResultListener() {
                     @Override
                     public void onApiResult(boolean success, Object... results) {
+                        loggedIn = response.isSuccessful();
                         listener.onApiResult(response.isSuccessful());
                     }
                 });
             }
         });
-        Log.d("EasyBoxApi", "Login: exit");
+        Log.d("EasyBoxApi", "login: exit");
     }
 }

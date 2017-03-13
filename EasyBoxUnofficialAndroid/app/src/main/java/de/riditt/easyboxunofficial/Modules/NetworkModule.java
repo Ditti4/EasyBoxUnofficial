@@ -19,7 +19,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
 public class NetworkModule {
     @Provides
     @Singleton
-    OkHttpClient provideOkHttpClient(HttpLoggingInterceptor logging) {
+    OkHttpClient provideOkHttpClient() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         return new OkHttpClient.Builder()
                 .cookieJar(new CookieJar() {
                     private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
@@ -41,15 +43,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    HttpLoggingInterceptor provideHttpLoggingInterceptor() {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        return logging;
-    }
-
-    @Provides
-    @Singleton
     EasyBoxApi provideEasyBoxApi(OkHttpClient client) {
-        return new EasyBoxApi();
+        return new EasyBoxApi(client);
     }
 }

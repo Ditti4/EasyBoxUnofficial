@@ -1,5 +1,7 @@
 package de.riditt.easyboxunofficial;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,18 +13,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
+import butterknife.ButterKnife;
 import de.riditt.easyboxunofficial.Api.EasyBoxApi;
+import de.riditt.easyboxunofficial.Application.EasyBoxUnofficialApplication;
 import de.riditt.easyboxunofficial.Presenters.MainActivityPresenter;
 import de.riditt.easyboxunofficial.Views.IMainActivityView;
 
 public class MainActivity extends AppCompatActivity
         implements IMainActivityView, NavigationView.OnNavigationItemSelectedListener {
 
+    @Inject
+    EasyBoxApi easyBoxApi;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
+        ((EasyBoxUnofficialApplication) getApplication()).getNetworkComponent().inject(this);
+
+        Toolbar toolbar = ButterKnife.findById(this, R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -34,18 +46,18 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        MainActivityPresenter presenter = new MainActivityPresenter(this);
+        MainActivityPresenter presenter = new MainActivityPresenter(this, easyBoxApi);
+        presenter.performLogin();
 
-        final TextView debugOutput = (TextView) findViewById(R.id.debug_output);
-        final EasyBoxApi apiInstance = new EasyBoxApi();
-        apiInstance.Initialize("192.168.2.1", new EasyBoxApi.OnApiResultListener() {
+        /*final TextView debugOutput = (TextView) findViewById(R.id.debug_output);
+        easyBoxApi.initialize("192.168.2.1", new EasyBoxApi.OnApiResultListener() {
             @Override
             public void onApiResult(boolean success, Object... results) {
                 if(success) {
-                    apiInstance.EstablishConnection(new EasyBoxApi.OnApiResultListener() {
+                    easyBoxApi.establishConnection(new EasyBoxApi.OnApiResultListener() {
                         @Override
                         public void onApiResult(boolean success, Object... results) {
-                            apiInstance.Login("", new EasyBoxApi.OnApiResultListener() {
+                            easyBoxApi.login("", new EasyBoxApi.OnApiResultListener() {
                                 @Override
                                 public void onApiResult(final boolean success, Object... results) {
                                     runOnUiThread(new Runnable() {
@@ -59,12 +71,12 @@ public class MainActivity extends AppCompatActivity
                         }
                     });
                 } else {
-                    // prompt user for server URL, check if the URL is valid using CheckForValidEasyBoxUrl
+                    // prompt user for server URL, check if the URL is valid using checkForValidEasyBoxUrl
                     // and then initialize again
-                    apiInstance.Initialize("192.168.2.1", this);
+                    easyBoxApi.initialize("192.168.2.1", this);
                 }
             }
-        });
+        });*/
     }
 
     @Override
@@ -122,5 +134,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void launchActivity(Class<?> activityClass) {
+        Intent activityLaunchIntent = new Intent(this, activityClass);
+        this.startActivity(activityLaunchIntent);
     }
 }
