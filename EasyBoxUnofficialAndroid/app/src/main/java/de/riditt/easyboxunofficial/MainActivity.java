@@ -1,25 +1,22 @@
 package de.riditt.easyboxunofficial;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import de.riditt.easyboxunofficial.Api.EasyBoxApi;
 import de.riditt.easyboxunofficial.Application.EasyBoxUnofficialApplication;
-import de.riditt.easyboxunofficial.Models.Requests.SessionKeepAliveRequest;
 import de.riditt.easyboxunofficial.Presenters.MainActivityPresenter;
 import de.riditt.easyboxunofficial.Views.IMainActivityView;
 
@@ -115,7 +112,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 

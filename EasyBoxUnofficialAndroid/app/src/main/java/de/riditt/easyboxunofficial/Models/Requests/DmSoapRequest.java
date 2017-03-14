@@ -7,7 +7,7 @@ import okhttp3.RequestBody;
 public class DmSoapRequest extends SoapRequest {
     private String dmCookie;
 
-    public DmSoapRequest(String serverUrl, String soapAction, String dmCookie) {
+    DmSoapRequest(String serverUrl, String soapAction, String dmCookie) {
         super(serverUrl, soapAction);
         this.dmCookie = dmCookie;
     }
@@ -16,11 +16,11 @@ public class DmSoapRequest extends SoapRequest {
         return dmCookie;
     }
 
-    protected String getBodyContent() {
+    String getBodyContent() {
         return "";
     }
 
-    protected String getSoapEnvelope() {
+    private String getSoapEnvelope() {
         return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "    <soapenv:Header>\n" +
                 "        <DMCookie>" + dmCookie + "</DMCookie>\n" +

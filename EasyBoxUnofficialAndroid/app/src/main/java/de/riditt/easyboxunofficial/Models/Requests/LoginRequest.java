@@ -8,6 +8,7 @@ public class LoginRequest extends DmSoapRequest {
     private String password;
     private boolean allowRelogin;
 
+    @SuppressWarnings("SameParameterValue")
     public LoginRequest(String serverUrl, String dmCookie, String username, String password, boolean allowRelogin) {
         super(serverUrl, "cwmp:Login", dmCookie);
         this.username = username;

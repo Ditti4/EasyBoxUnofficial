@@ -4,8 +4,6 @@ import android.app.Application;
 
 import de.riditt.easyboxunofficial.Components.DaggerNetworkComponent;
 import de.riditt.easyboxunofficial.Components.NetworkComponent;
-import de.riditt.easyboxunofficial.Modules.ApplicationModule;
-import de.riditt.easyboxunofficial.Modules.NetworkModule;
 
 public class EasyBoxUnofficialApplication extends Application {
 
