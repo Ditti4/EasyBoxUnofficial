@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -19,6 +20,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.riditt.easyboxunofficial.Api.EasyBoxApi;
 import de.riditt.easyboxunofficial.Application.EasyBoxUnofficialApplication;
+import de.riditt.easyboxunofficial.Models.Requests.SessionKeepAliveRequest;
 
 /**
  * A login screen that offers login via email/password.

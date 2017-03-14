@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.riditt.easyboxunofficial.Models.Requests.LoginRequest;
+import de.riditt.easyboxunofficial.Models.Requests.SessionKeepAliveRequest;
 import de.riditt.easyboxunofficial.Utilities;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -51,6 +53,10 @@ public class EasyBoxApi {
 
     public String getServerUrl() {
         return serverUrl;
+    }
+
+    public String getDmCookie() {
+        return dmCookie;
     }
 
     public void stopKeepAlive() {
@@ -234,31 +240,11 @@ public class EasyBoxApi {
         Log.d("EasyBoxApi", "fetchDmCookie: enter");
     }
 
-    private Request createSoapRequest(String soapEnvelope, String soapAction) {
-        return new Request.Builder()
-                .url("http://" + serverUrl + "/data_model.cgi")
-                .addHeader("SOAPServer", "")
-                .addHeader("SOAPAction", soapAction)
-                .post(RequestBody.create(MediaType.parse("text/xml"), soapEnvelope))
-                .build();
-    }
-
     private void keepAlive(final OnApiResultListener listener) {
         Log.d("EasyBoxApi", "keepAlive: enter");
-        String soapEnvelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "    <soapenv:Header>\n" +
-                "        <DMCookie>" + dmCookie + "</DMCookie>\n" +
-                "        <SessionNotRefresh>0</SessionNotRefresh>\n" +
-                "    </soapenv:Header>\n" +
-                "    <soapenv:Body>\n" +
-                "        <cwmp:SessionKeepAlive xmlns=\"\">\n" +
-                "            <SessionKeepAlive></SessionKeepAlive>\n" +
-                "        </cwmp:SessionKeepAlive>\n" +
-                "    </soapenv:Body>\n" +
-                "</soapenv:Envelope>";
-
+        SessionKeepAliveRequest sessionKeepAliveRequest = new SessionKeepAliveRequest(serverUrl, dmCookie);
         Log.d("EasyBoxApi", "keepAlive: send");
-        client.newCall(createSoapRequest(soapEnvelope, "cwmp:SessionKeepAlive")).enqueue(new Callback() {
+        client.newCall(sessionKeepAliveRequest.getRequest()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -275,26 +261,9 @@ public class EasyBoxApi {
 
     public void login(String password, final OnApiResultListener listener) {
         Log.d("EasyBoxApi", "login: enter");
-        Log.d("EasyBoxApi", "login: password = " + password);
-        Log.d("EasyBoxApi", "login: authKey = " + authKey);
-
-        String soapEnvelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "    <soapenv:Header>\n" +
-                "        <DMCookie>" + dmCookie + "</DMCookie>\n" +
-                "    </soapenv:Header>\n" +
-                "    <soapenv:Body>\n" +
-                "        <cwmp:Login xmlns = \"\">\n" +
-                "            <ParameterList>\n" +
-                "                <Username>vodafone</Username>\n" +
-                "                <Password>" + Utilities.md5(password + authKey).toUpperCase() + "</Password>\n" +
-                "                <AllowRelogin>0</AllowRelogin>\n" +
-                "            </ParameterList>\n" +
-                "        </cwmp:Login>\n" +
-                "    </soapenv:Body>\n" +
-                "</soapenv:Envelope>";
-
+        LoginRequest loginRequest = new LoginRequest(serverUrl, dmCookie, "vodafone", Utilities.md5(password + authKey).toUpperCase(), false);
         Log.d("EasyBoxApi", "login: send");
-        client.newCall(createSoapRequest(soapEnvelope, "cwmp:Login")).enqueue(new Callback() {
+        client.newCall(loginRequest.getRequest()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
