@@ -1,4 +1,4 @@
 package de.riditt.easyboxunofficial.Models.Responses;
 
-public class SessionKeepAliveResponse {
+public class SessionKeepAliveResponse extends FaultResponse {
 }

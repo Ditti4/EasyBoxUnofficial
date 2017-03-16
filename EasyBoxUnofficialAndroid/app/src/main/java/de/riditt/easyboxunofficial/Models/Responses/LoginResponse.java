@@ -1,4 +1,4 @@
 package de.riditt.easyboxunofficial.Models.Responses;
 
-public class LoginResponse {
+public class LoginResponse extends FaultResponse {
 }
