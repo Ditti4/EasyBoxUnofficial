@@ -7,12 +7,17 @@
     <string name="menu_about_this_app">Über diese App</string>
     <string name="menu_home">Startseite</string>
     <string name="menu_title_application">Anwendung</string>
-    <string name="error_field_required">Erforderliches Feld</string>
-    <string name="error_incorrect_password">Dieses Passwort ist falsch</string>
-    <string name="prompt_server_url">EasyBox-URL</string>
-    <string name="title_activity_login">Anmelden</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_password">Passwort</string>
     <string name="action_sign_in">Einloggen</string>
     <string name="action_sign_in_short">Einloggen</string>
-    <string name="prompt_password">Passwort</string>
+    <string name="error_incorrect_password">Dieses Passwort ist falsch</string>
+    <plurals name="error_login_blocked">
+        <item quantity="one">Dieses Passwort ist falsch, der Anmeldung wurde für %1$d Sekunde gesperrt</item>
+        <item quantity="other">Dieses Passwort ist falsch, der Anmeldung wurde für %1$d Sekunden gesperrt</item>
+    </plurals>
+    <string name="error_field_required">Dieses Feld ist erforderlich</string>
+    <string name="prompt_server_url">EasyBox-URL</string>
     <string name="error_invalid_server_url">Diese URL ist keine gültige EasyBox-URL</string>
 </resources>

@@ -16,6 +16,10 @@
     <string name="action_sign_in">Log in</string>
     <string name="action_sign_in_short">Log in</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <plurals name="error_login_blocked">
+        <item quantity="one">This password is incorrect, login is blocked for %1$d second</item>
+        <item quantity="other">This password is incorrect, login is blocked for %1$d seconds</item>
+    </plurals>
     <string name="error_field_required">This field is required</string>
     <string name="prompt_server_url">EasyBox URL</string>
     <string name="error_invalid_server_url">This URL is not a valid EasyBox URL</string>
