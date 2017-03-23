@@ -3,8 +3,8 @@ package de.riditt.easyboxunofficial.components;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import de.riditt.easyboxunofficial.views.LoginActivity;
-import de.riditt.easyboxunofficial.views.MainActivity;
+import de.riditt.easyboxunofficial.activities.LoginActivity;
+import de.riditt.easyboxunofficial.activities.MainActivity;
 import de.riditt.easyboxunofficial.modules.NetworkModule;
 
 @Singleton

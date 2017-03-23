@@ -1,7 +1,7 @@
 package de.riditt.easyboxunofficial.presenters;
 
 import de.riditt.easyboxunofficial.api.EasyBoxApi;
-import de.riditt.easyboxunofficial.views.LoginActivity;
+import de.riditt.easyboxunofficial.activities.LoginActivity;
 import de.riditt.easyboxunofficial.views.IMainActivityView;
 
 public class MainActivityPresenter {

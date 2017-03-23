@@ -1,4 +1,4 @@
-package de.riditt.easyboxunofficial.views;
+package de.riditt.easyboxunofficial.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +19,7 @@ import de.riditt.easyboxunofficial.R;
 import de.riditt.easyboxunofficial.api.EasyBoxApi;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
 import de.riditt.easyboxunofficial.presenters.MainActivityPresenter;
+import de.riditt.easyboxunofficial.views.IMainActivityView;
 
 public class MainActivity extends AppCompatActivity
         implements IMainActivityView, NavigationView.OnNavigationItemSelectedListener {

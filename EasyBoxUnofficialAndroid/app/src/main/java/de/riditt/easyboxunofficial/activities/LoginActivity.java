@@ -1,4 +1,4 @@
-package de.riditt.easyboxunofficial.views;
+package de.riditt.easyboxunofficial.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -21,6 +21,7 @@ import de.riditt.easyboxunofficial.R;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
 import de.riditt.easyboxunofficial.presenters.LoginActivityPresenter;
 import de.riditt.easyboxunofficial.services.EasyBoxService;
+import de.riditt.easyboxunofficial.views.ILoginActivityView;
 
 /**
  * A login screen that offers login to the EasyBox using the device's password.
