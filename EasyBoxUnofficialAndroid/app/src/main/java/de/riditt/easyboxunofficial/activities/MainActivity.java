@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
 import de.riditt.easyboxunofficial.R;
 import de.riditt.easyboxunofficial.api.EasyBoxApi;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
-import de.riditt.easyboxunofficial.presenters.MainActivityPresenter;
+import de.riditt.easyboxunofficial.presenters.MainPresenter;
 import de.riditt.easyboxunofficial.views.MainView;
 
 public class MainActivity extends AppCompatActivity
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        MainActivityPresenter presenter = new MainActivityPresenter(this, easyBoxApi);
+        MainPresenter presenter = new MainPresenter(this, easyBoxApi);
         presenter.performLogin();
 
         /*final TextView debugOutput = (TextView) findViewById(R.id.debug_output);
