@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.riditt.easyboxunofficial.R;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
-import de.riditt.easyboxunofficial.presenters.LoginActivityPresenter;
+import de.riditt.easyboxunofficial.presenters.LoginPresenter;
 import de.riditt.easyboxunofficial.services.EasyBoxService;
 import de.riditt.easyboxunofficial.views.LoginView;
 
@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     View progressView;
     @BindView(R.id.login_form)
     View loginFormView;
-    private LoginActivityPresenter presenter;
+    private LoginPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
         ((EasyBoxUnofficialApplication) getApplication()).getNetworkComponent().inject(this);
-        presenter = new LoginActivityPresenter(this, easyBoxService);
+        presenter = new LoginPresenter(this, easyBoxService);
 
         setupActionBar();
 

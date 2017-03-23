@@ -9,11 +9,11 @@ import de.riditt.easyboxunofficial.models.responses.LoginResponse;
 import de.riditt.easyboxunofficial.services.EasyBoxService;
 import de.riditt.easyboxunofficial.views.LoginView;
 
-public class LoginActivityPresenter {
+public class LoginPresenter {
     private LoginView loginActivityView;
     private EasyBoxService easyBoxService;
 
-    public LoginActivityPresenter(LoginView loginActivityView, EasyBoxService easyBoxService) {
+    public LoginPresenter(LoginView loginActivityView, EasyBoxService easyBoxService) {
         this.loginActivityView = loginActivityView;
         this.easyBoxService = easyBoxService;
     }

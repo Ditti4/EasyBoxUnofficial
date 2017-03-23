@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import de.riditt.easyboxunofficial.views.LoginView;
 
-public class LoginActivityPresenterTest {
+public class LoginPresenterTest {
     private class MockView implements LoginView {
         boolean showProgressCalled;
         boolean showServerUrlErrorCalled;
@@ -49,6 +49,6 @@ public class LoginActivityPresenterTest {
     public void shouldEstablishConnection() {
         LoginView loginActivityView = new MockView();
 
-        LoginActivityPresenter presenter = new LoginActivityPresenter(loginActivityView, null);
+        LoginPresenter presenter = new LoginPresenter(loginActivityView, null);
     }
 }
