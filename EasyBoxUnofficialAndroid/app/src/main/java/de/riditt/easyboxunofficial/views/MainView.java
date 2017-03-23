@@ -1,6 +1,6 @@
 package de.riditt.easyboxunofficial.views;
 
-public interface IMainActivityView {
+public interface MainView {
 
     void launchActivity(Class<?> activityClass);
 }

@@ -7,13 +7,13 @@ import de.riditt.easyboxunofficial.api.EasyBoxApiListener;
 import de.riditt.easyboxunofficial.models.responses.common.CwmpFault;
 import de.riditt.easyboxunofficial.models.responses.LoginResponse;
 import de.riditt.easyboxunofficial.services.EasyBoxService;
-import de.riditt.easyboxunofficial.views.ILoginActivityView;
+import de.riditt.easyboxunofficial.views.LoginView;
 
 public class LoginActivityPresenter {
-    private ILoginActivityView loginActivityView;
+    private LoginView loginActivityView;
     private EasyBoxService easyBoxService;
 
-    public LoginActivityPresenter(ILoginActivityView loginActivityView, EasyBoxService easyBoxService) {
+    public LoginActivityPresenter(LoginView loginActivityView, EasyBoxService easyBoxService) {
         this.loginActivityView = loginActivityView;
         this.easyBoxService = easyBoxService;
     }

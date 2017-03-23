@@ -1,6 +1,6 @@
 package de.riditt.easyboxunofficial.views;
 
-public interface ILoginActivityView {
+public interface LoginView {
     void showProgress(boolean show);
     void resetErrors();
     void hideServerUrlField();

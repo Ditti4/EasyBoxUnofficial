@@ -19,10 +19,10 @@ import de.riditt.easyboxunofficial.R;
 import de.riditt.easyboxunofficial.api.EasyBoxApi;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
 import de.riditt.easyboxunofficial.presenters.MainActivityPresenter;
-import de.riditt.easyboxunofficial.views.IMainActivityView;
+import de.riditt.easyboxunofficial.views.MainView;
 
 public class MainActivity extends AppCompatActivity
-        implements IMainActivityView, NavigationView.OnNavigationItemSelectedListener {
+        implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
     @Inject
     EasyBoxApi easyBoxApi;

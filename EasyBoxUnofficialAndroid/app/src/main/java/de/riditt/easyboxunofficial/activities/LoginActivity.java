@@ -21,12 +21,12 @@ import de.riditt.easyboxunofficial.R;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
 import de.riditt.easyboxunofficial.presenters.LoginActivityPresenter;
 import de.riditt.easyboxunofficial.services.EasyBoxService;
-import de.riditt.easyboxunofficial.views.ILoginActivityView;
+import de.riditt.easyboxunofficial.views.LoginView;
 
 /**
  * A login screen that offers login to the EasyBox using the device's password.
  */
-public class LoginActivity extends AppCompatActivity implements ILoginActivityView {
+public class LoginActivity extends AppCompatActivity implements LoginView {
     // EasyBoxService instance, provided by Dagger
     @Inject
     EasyBoxService easyBoxService;

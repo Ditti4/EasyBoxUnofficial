@@ -2,10 +2,10 @@ package de.riditt.easyboxunofficial.presenters;
 
 import org.junit.Test;
 
-import de.riditt.easyboxunofficial.views.ILoginActivityView;
+import de.riditt.easyboxunofficial.views.LoginView;
 
 public class LoginActivityPresenterTest {
-    private class MockView implements ILoginActivityView {
+    private class MockView implements LoginView {
         boolean showProgressCalled;
         boolean showServerUrlErrorCalled;
 
@@ -47,7 +47,7 @@ public class LoginActivityPresenterTest {
 
     @Test
     public void shouldEstablishConnection() {
-        ILoginActivityView loginActivityView = new MockView();
+        LoginView loginActivityView = new MockView();
 
         LoginActivityPresenter presenter = new LoginActivityPresenter(loginActivityView, null);
     }

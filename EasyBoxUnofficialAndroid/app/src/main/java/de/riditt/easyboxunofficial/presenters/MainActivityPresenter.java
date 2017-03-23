@@ -2,13 +2,13 @@ package de.riditt.easyboxunofficial.presenters;
 
 import de.riditt.easyboxunofficial.api.EasyBoxApi;
 import de.riditt.easyboxunofficial.activities.LoginActivity;
-import de.riditt.easyboxunofficial.views.IMainActivityView;
+import de.riditt.easyboxunofficial.views.MainView;
 
 public class MainActivityPresenter {
-    private IMainActivityView mainActivityView;
+    private MainView mainActivityView;
     private EasyBoxApi easyBoxApi;
 
-    public MainActivityPresenter(IMainActivityView mainActivityView, EasyBoxApi easyBoxApi) {
+    public MainActivityPresenter(MainView mainActivityView, EasyBoxApi easyBoxApi) {
         this.mainActivityView = mainActivityView;
         this.easyBoxApi = easyBoxApi;
     }
