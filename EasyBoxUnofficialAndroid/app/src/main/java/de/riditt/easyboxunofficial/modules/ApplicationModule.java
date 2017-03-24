@@ -6,6 +6,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.riditt.easyboxunofficial.data.ApplicationSettings;
+import de.riditt.easyboxunofficial.data.SharedPreferencesApplicationSettings;
 
 @Module
 public class ApplicationModule {
@@ -17,7 +19,13 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    Application providesApplication() {
+    Application provideApplication() {
         return mApplication;
+    }
+
+    @Provides
+    @Singleton
+    ApplicationSettings provideApplicationSettings(Application application) {
+        return new SharedPreferencesApplicationSettings(application);
     }
 }
