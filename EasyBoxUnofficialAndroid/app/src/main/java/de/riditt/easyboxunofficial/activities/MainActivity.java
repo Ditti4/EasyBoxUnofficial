@@ -16,16 +16,19 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import de.riditt.easyboxunofficial.R;
-import de.riditt.easyboxunofficial.api.EasyBoxApi;
 import de.riditt.easyboxunofficial.application.EasyBoxUnofficialApplication;
+import de.riditt.easyboxunofficial.data.ApplicationSettings;
 import de.riditt.easyboxunofficial.presenters.MainPresenter;
+import de.riditt.easyboxunofficial.services.EasyBoxService;
 import de.riditt.easyboxunofficial.views.MainView;
 
 public class MainActivity extends AppCompatActivity
         implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
     @Inject
-    EasyBoxApi easyBoxApi;
+    EasyBoxService easyBoxService;
+    @Inject
+    ApplicationSettings applicationSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,37 +49,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        MainPresenter presenter = new MainPresenter(this, easyBoxApi);
+        MainPresenter presenter = new MainPresenter(this, easyBoxService, applicationSettings);
         presenter.performLogin();
-
-        /*final TextView debugOutput = (TextView) findViewById(R.id.debug_output);
-        easyBoxApi.initialize("192.168.2.1", new EasyBoxApi.OnApiResultListener() {
-            @Override
-            public void onApiResult(boolean success, Object... results) {
-                if(success) {
-                    easyBoxApi.establishConnection(new EasyBoxApi.OnApiResultListener() {
-                        @Override
-                        public void onApiResult(boolean success, Object... results) {
-                            easyBoxApi.login("", new EasyBoxApi.OnApiResultListener() {
-                                @Override
-                                public void onApiResult(final boolean success, Object... results) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            debugOutput.setText("" + success);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    // prompt user for server URL, check if the URL is valid using checkForValidEasyBoxUrl
-                    // and then initialize again
-                    easyBoxApi.initialize("192.168.2.1", this);
-                }
-            }
-        });*/
     }
 
     @Override
@@ -137,8 +111,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void launchActivity(Class<?> activityClass) {
-        Intent activityLaunchIntent = new Intent(this, activityClass);
+    public void showLoginActivity() {
+        Intent activityLaunchIntent = new Intent(this, LoginActivity.class);
         this.startActivity(activityLaunchIntent);
     }
 }
