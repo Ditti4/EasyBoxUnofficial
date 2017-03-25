@@ -50,7 +50,15 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         ((EasyBoxUnofficialApplication) getApplication()).getNetworkComponent().inject(this);
         presenter = new LoginPresenter(this, easyBoxService);
 
-        setupActionBar();
+        setupView();
+
+        presenter.onCreateView();
+    }
+
+    private void setupView() {
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -62,38 +70,8 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
                 return false;
             }
         });
-
-        presenter.onCreateView();
     }
 
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Show the Up button in the action bar.
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    @OnClick(R.id.sign_in_button)
-    public void attemptLogin() {
-        // Store values at the time of the login attempt.
-        final String serverUrl = serverUrlView.getText().toString();
-        final String password = passwordView.getText().toString();
-
-        presenter.attemptLogin(serverUrl, password);
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
         runOnUiThread(new Runnable() {
@@ -130,6 +108,14 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
                 }
             }
         });
+    }
+
+    @OnClick(R.id.sign_in_button)
+    public void attemptLogin() {
+        final String serverUrl = serverUrlView.getText().toString();
+        final String password = passwordView.getText().toString();
+
+        presenter.attemptLogin(serverUrl, password);
     }
 
     @Override

@@ -47,19 +47,21 @@ public class LoginPresenter {
                 @Override
                 public void onLoginResponse(LoginResponse loginResponse) {
                     loginActivityView.showProgress(false);
-                    if(loginResponse.getSoapBody() != null) {
+                    if(loginResponse != null && loginResponse.getSoapBody() != null) {
                         if (loginResponse.getSoapBody().getLoginResponse() != null) {
                             loginActivityView.handleSuccessfulLogin();
                         } else {
                             CwmpFault fault = loginResponse.getSoapBody().getSoapEnvFault().getSoapEnvFaultDetail().getCwmpFault();
                             Pattern loginBlockedPattern = Pattern.compile("Tauth_blocked_for_security;(\\d+)");
-                            if (fault != null) {
+                            if(fault.getFaultMsgCode() != null) {
                                 Matcher loginBlockedMatcher = loginBlockedPattern.matcher(fault.getFaultMsgCode());
                                 if (loginBlockedMatcher.find()) {
                                     loginActivityView.showLoginBlockedError(Integer.parseInt(loginBlockedMatcher.group(1)));
                                 } else {
                                     loginActivityView.showPasswordError();
                                 }
+                            } else {
+                                loginActivityView.showPasswordError();
                             }
                         }
                     } else {
