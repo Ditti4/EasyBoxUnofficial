@@ -118,6 +118,11 @@ public class EasyBoxApi {
                                         @Override
                                         public void onApiResult(boolean success, Object... results) {
                                             Log.d("EasyBoxApi", "keepAlive: response (" + success + ")");
+                                            if(!success) {
+                                                stopKeepAlive();
+                                                initialized = false;
+                                                connectionEstablished = false;
+                                            }
                                         }
                                     });
                                     keepAliveHandler.postDelayed(this, 10000);
