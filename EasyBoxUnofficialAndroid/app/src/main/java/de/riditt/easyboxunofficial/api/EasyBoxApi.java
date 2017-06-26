@@ -28,7 +28,7 @@ public class EasyBoxApi {
     private OkHttpClient client;
 
     private final Handler keepAliveHandler = new Handler();
-    private boolean stopKeepAliveHandler;
+    private boolean keepKeepAliveHandlerAlive;
 
     private boolean connectionEstablished;
     private boolean initialized;
@@ -60,7 +60,7 @@ public class EasyBoxApi {
 
     public void stopKeepAlive() {
         // need to think of a better way to do this
-        stopKeepAliveHandler = true;
+        keepKeepAliveHandlerAlive = false;
     }
 
     public void initialize(String serverUrl, final EasyBoxApiListener.OnApiResultListener listener) {
@@ -102,8 +102,8 @@ public class EasyBoxApi {
                         keepAlive(new EasyBoxApiListener.OnApiResultListener() {
                             @Override
                             public void onApiResult(boolean success, Object... results) {
-                                Log.d("EasyBoxApi", "keepAlive: response (" + success + ")");
                                 // wait until after we got the keepAlive response to send the message about the successful login
+                                Log.d("EasyBoxApi", "keepAlive: response (" + success + ")");
                                 connectionEstablished = success;
                                 listener.onApiResult(success);
                             }
@@ -112,7 +112,7 @@ public class EasyBoxApi {
                         keepAliveHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if (!stopKeepAliveHandler) {
+                                if (keepKeepAliveHandlerAlive) {
                                     Log.d("EasyBoxApi", "keepAlive: don't stop");
                                     keepAlive(new EasyBoxApiListener.OnApiResultListener() {
                                         @Override
@@ -127,7 +127,7 @@ public class EasyBoxApi {
                                     });
                                     keepAliveHandler.postDelayed(this, 10000);
                                 } else {
-                                    stopKeepAliveHandler = false;
+                                    Log.d("EasyBoxApi", "keepAlive: stop");
                                 }
                             }
                         }, 10000);
